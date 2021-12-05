@@ -2,7 +2,6 @@
 
 const cart = [];
 
-
 /** CHECK PRODUCT REFERENCE VALIDITY
  * reference must be unique and match the pattern / regex
  * check if reference match the regex and then compare in with products already store in localStorage
@@ -34,18 +33,23 @@ function storeNewProductInLocalStorage(formData){
   let newProduct = {
     reference: formData.get('reference'),
     name: formData.get('name'),
+    stock: formData.get('stock'),
     // description: formData.get('description'),
     // quantity: formData.get('quantity'),
     price: formData.get('price')
   }
-  // stringify and store in localStorage the new product with a name === product reference
+  // stringify and store in localStorage the new product with a name === its reference
   newProduct_json = JSON.stringify(newProduct);
   localStorage.setItem(formData.get('reference'), newProduct_json);
   // launch display of product table
   displayProductsList()
 }
 
-
+/** SET PRODUCT LIST BUTTONS ACTIONS
+ * add eventListener on buttons buy and delele
+ * button buy call function addProductToCart
+ * button delete call function adeleteProduct
+ */
 function setProductListButtonsActions(){
   let buttonsBuy = document.getElementsByClassName('buttonBuy');
   let buttonsDelete = Array.from(document.getElementsByClassName('buttonDelete'));
@@ -68,28 +72,41 @@ function setProductListButtonsActions(){
 }
 
 
-
+/** ADD PRODUCT TO CART
+ * button buy check stock, add product to cart, increase quantity if already in cart
+ * decrease product stock and call views function
+ * @param {*} productRef 
+ */
 function addProductToCart(productRef){
-
-  let inCart = false;
-  // check if product is already in cart, if true change quantity
-  for( var i = 0; i < cart.length; i++){ 
-    if ( cart[i][0] === productRef) {
-      cart[i][1] += 1;
-      inCart = true;
+  // check stock
+  if (controlProductStock(productRef) === true) {
+    let inCart = false;
+    // check if product is already in cart, if true change quantity
+    for( var i = 0; i < cart.length; i++){ 
+      if ( cart[i][0] === productRef) {
+        cart[i][1] += 1;
+        inCart = true;
+      }
     }
+    // if product not already in cart add it
+    if(inCart === false){
+      let cartItem = [productRef, 1]
+      cart.push(cartItem);
+    }
+    // update the stock, display product list, remove cart view, and display it again
+    decreaseProductStock(productRef)
+    updateViews()
+  } else {
+    alert('stock insufisant');
   }
-  // if product not already in cart add it
-  if(inCart === false){
-    let cartItem = [productRef, 1]
-    cart.push(cartItem);
-  }
-  // remove cart view, and display it again 
-  removeCart()
-  displayCart(cart);
 }
 
+/** DELETE PRODUCT
+ * delete product from localStorage, delete it also from cart if present
+ * @param {*} productRef 
+ */
 function deleteProduct(productRef){
+  // remove product from localStorage
   localStorage.removeItem(productRef)
   removeProductList();
   if(Object.keys(localStorage).length > 0){
@@ -102,11 +119,16 @@ function deleteProduct(productRef){
         cart.splice(i, 1); 
     }
   }
+  // delete, display the views
   removeCart()
   displayCart(cart);
 }
 
-
+/** SET CART BUTTONS ACTIONS
+ * add eventListener on cart buttons add and sub
+ * button add call addExtraProductToCart function
+ * button sub call removeProductFromCart function
+ */
 function setCartButtonsActions(){
   let buttonsAdd = document.getElementsByClassName('buttonAdd');
   let buttonsSub = Array.from(document.getElementsByClassName('buttonSub'));
@@ -128,29 +150,89 @@ function setCartButtonsActions(){
   })
 }
 
-
+/** ADD EXTRA PRODUCT TO CART
+ * check product stock, if in stock add an extra quantity - else alert of insufficient quantity
+ * decrease the stock and update the views
+ * @param {*} productRef 
+ */
 function addExtraProductToCart(productRef){
-  for( var i = 0; i < cart.length; i++){ 
-    if ( cart[i][0] === productRef) {
-      cart[i][1] += 1;
+  // check stock
+  if (controlProductStock(productRef) === true) {
+    for( var i = 0; i < cart.length; i++){ 
+      if ( cart[i][0] === productRef) {
+        cart[i][1] += 1;
+      }
     }
+    // decrease the stock
+    decreaseProductStock(productRef);
+    // remove cart view, and display it again
+    updateViews();
+  } else {
+    alert('stock insufisant');
   }
-  // remove cart view, and display it again 
-  removeCart()
-  displayCart(cart);
 }
 
-
+/** REMOVE PRODUCT FROM CART
+ * decrease quantity of product, if quantity === 0 remove product from cart
+ * increase stock, updates views
+ * @param {*} productRef 
+ */
 function removeProductFromCart(productRef){
   for( var i = 0; i < cart.length; i++){ 
     if ( cart[i][0] === productRef) {
       cart[i][1] -= 1;
+      // if quantity === 0 remove product from cart
       if(cart[i][1] === 0){
         cart.splice(i, 1); 
       }
     }
   }
-  // remove cart view, and display it again 
+  // remove cart view, and display it again
+  increaseProductStock(productRef)
+  updateViews()
+};
+
+/** DECREASE PRODUCT STOCK
+ * substract one to product stock and store it back to localStorage
+ * @param {*} productRef 
+ */
+function decreaseProductStock(productRef){
+  let product = JSON.parse(localStorage.getItem(productRef));
+  product.stock -= 1
+  product_json = JSON.stringify(product);
+  localStorage.setItem(product.reference, product_json);
+}
+
+/** INCREASE PRODUCT STOCK
+ * add one extra to product stock and store it back to localStorage
+ * @param {*} productRef 
+ */
+function increaseProductStock(productRef){
+  let product = JSON.parse(localStorage.getItem(productRef));
+  product.stock += 1
+  product_json = JSON.stringify(product);
+  localStorage.setItem(product.reference, product_json);
+}
+
+/** CONTROL PRODUCT STOCK
+ * if product stock > 0 return true
+ * else return false
+ */
+function controlProductStock(productRef){
+  let product = JSON.parse(localStorage.getItem(productRef));
+  if (product.stock > 0){
+    return true;
+  } else {
+    return false;
+  }
+
+}
+
+/** UPDATE VIEWS
+ * display product list, remove cart and display it again
+ */
+function updateViews(){
+  displayProductsList()
   removeCart()
   displayCart(cart);
-};
+}

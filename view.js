@@ -1,4 +1,3 @@
-
 /** DISPLAY PRODUCT LIST
  * display product list based on products store in localStorage
  * call function wicht set buy and delete buttons eventListener and actions
@@ -21,7 +20,7 @@ function displayProductsList(){
   table.classList.add("table-striped");
   // create the table header
   let tableHeader = document.createElement('thead');
-  tableHeader.innerHTML = '<tr><th>Reference</th><th>Nom</th><th colspan="2"></th></tr>';
+  tableHeader.innerHTML = '<tr><th>Reference</th><th>Nom</th><th>Prix</th><th>Stock</th><th colspan="2"></th></tr>';
   table.appendChild(tableHeader)
 
   // create the table body with the product list from localStorage
@@ -46,6 +45,10 @@ function displayProductsList(){
     let productPrice = document.createElement('td');
     productPrice.innerHTML = product.price;
     tableRow.appendChild(productPrice);
+    // create table cell stock   
+    let productStock = document.createElement('td');
+    productStock.innerHTML = product.stock;
+    tableRow.appendChild(productStock);
     // create buy button
     buyButton = document.createElement('td');
     buyButton.innerHTML = '<button class="btn btn-primary buttonBuy">acheter</button>';
@@ -66,6 +69,10 @@ function displayProductsList(){
   setProductListButtonsActions();
 }
 
+/** REMOVE PRODUCT LIST
+ * remove html element from the parent
+ * empty product list
+ */
 function removeProductList(){
   const productsList = document.getElementById('productsList');
   const productsListWrapper = document.getElementById('product-list-wrapper');
@@ -74,7 +81,11 @@ function removeProductList(){
   }
 }
 
-
+/** DISPLAY CART 
+ * display cart based on cart => 2D array [[product.reference, quantity],[], ...]
+ * create a table, set table header, table body with product info, calculate total price for each product
+ * create a table footer with cart total price 
+ */
 function displayCart(cart){
 
   const cartDiv = document.getElementById('cart');
@@ -125,13 +136,13 @@ function displayCart(cart){
     cartDiv.appendChild(cartWrapper);
 
     setCartButtonsActions()
-  } else {
-    cartDiv.innerHTML = '<p>votre panier est vide</p>'
   }
 }
 
 
-
+/** REMOVE CART
+ * remome cart html wrapper form its html parent
+ */
 function removeCart(){
   const cartDiv = document.getElementById('cart');
   const cartWrapper = document.getElementById('cart-wrapper');
