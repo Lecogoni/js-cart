@@ -60,10 +60,10 @@ function displayProductsList(){
   // insert, tbody in table, table in wrapper, wrapper in html div
   table.appendChild(tableBody);
   tableWrapper.appendChild(table);
-  productsList.appendChild(tableWrapper)
+  productsList.appendChild(tableWrapper);
 
   // set event listener and fucntion on buy and delete buttons
-  setButtonsActions()
+  setProductListButtonsActions();
 }
 
 function removeProductList(){
@@ -78,31 +78,56 @@ function removeProductList(){
 function displayCart(cart){
 
   const cartDiv = document.getElementById('cart');
+  let cartTotal = 0;
 
-  let cartWrapper = document.createElement('div');
-  cartWrapper.setAttribute("id", 'cart-wrapper');
-  let cartHeader = document.createElement('div');
-  cartHeader.innerHTML = '<h1>Mon panier</h1>';
-  cartWrapper.appendChild(cartHeader)
+  if(cart.length > 0){
 
-  let cartTable = document.createElement('table');
-  cartTable.classList.add("table");
-  cartTable.classList.add("table-striped");
-  let tableHeader = document.createElement('thead');
-  tableHeader.innerHTML = '<tr><th>nom</th><th>quantité</th><th>prix unitaire</th><th>total</th></tr>';
-  cartTable.appendChild(tableHeader);
+    let cartWrapper = document.createElement('div');
+    cartWrapper.setAttribute("id", 'cart-wrapper');
+    let cartHeader = document.createElement('div');
+    cartHeader.innerHTML = '<h1>Mon panier</h1>';
+    cartWrapper.appendChild(cartHeader)
 
-  let tableBody = document.createElement('tbody');
-  // loop on each cart item - product in cart
-  for( var i = 0; i < cart.length; i++){
-    let product = JSON.parse(localStorage.getItem(cart[i][0]));
-    let cartRow = document.createElement('tr');
-    cartRow.innerHTML = '<td>'+ product.name +'</td><td>'+ cart[i][1] +'</td><td>'+product.price +'</td><td>'+ (Math.round((product.price * cart[i][1]) * 100) / 100).toFixed(2);+'</td>';
-    tableBody.appendChild(cartRow)
+    let cartTable = document.createElement('table');
+    cartTable.classList.add("table");
+    cartTable.classList.add("table-striped");
+    let tableHeader = document.createElement('thead');
+    tableHeader.innerHTML = '<tr><th>nom</th><th>quantité</th><th>prix unitaire</th><th>total</th><th colspan="2"></th></tr>';
+    cartTable.appendChild(tableHeader);
+
+    let tableBody = document.createElement('tbody');
+    // loop on each cart item - product in cart
+    for( var i = 0; i < cart.length; i++){
+      let product = JSON.parse(localStorage.getItem(cart[i][0]));
+      let cartRow = document.createElement('tr');
+      cartRow.setAttribute("id", product.reference);
+      cartRow.innerHTML = '<td>'+ product.name +'</td><td>'+ cart[i][1] +'</td><td>'+product.price +'</td><td>'+ (Math.round((product.price * cart[i][1]) * 100) / 100).toFixed(2); +'</td>';
+      // increase cart total
+      cartTotal += product.price * cart[i][1];
+
+      // create add button
+      addButton = document.createElement('td');
+      addButton.innerHTML = '<button class="badge rounded-pill bg-primary buttonAdd">+</button>';
+      cartRow.appendChild(addButton);
+      // create sub button
+      subButton = document.createElement('td');
+      subButton.innerHTML = '<button class="badge rounded-pill bg-danger buttonSub">-</button>';
+      cartRow.appendChild(subButton);
+
+      tableBody.appendChild(cartRow)
+    }
+    let tableFooter = document.createElement('tfoot');
+    tableFooter.innerHTML = '<tr><td colspan"3"> </td><td>'+ (Math.round(cartTotal * 100) / 100).toFixed(2) + '</td></tr>';
+    cartTable.appendChild(tableFooter);
+
+    cartTable.appendChild(tableBody);
+    cartWrapper.appendChild(cartTable);
+    cartDiv.appendChild(cartWrapper);
+
+    setCartButtonsActions()
+  } else {
+    cartDiv.innerHTML = '<p>votre panier est vide</p>'
   }
-  cartTable.appendChild(tableBody);
-  cartWrapper.appendChild(cartTable);
-  cartDiv.appendChild(cartWrapper);
 }
 
 

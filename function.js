@@ -46,7 +46,7 @@ function storeNewProductInLocalStorage(formData){
 }
 
 
-function setButtonsActions(){
+function setProductListButtonsActions(){
   let buttonsBuy = document.getElementsByClassName('buttonBuy');
   let buttonsDelete = Array.from(document.getElementsByClassName('buttonDelete'));
   // add eventListener on product buy button
@@ -66,6 +66,8 @@ function setButtonsActions(){
     })
   })
 }
+
+
 
 function addProductToCart(productRef){
 
@@ -93,4 +95,62 @@ function deleteProduct(productRef){
   if(Object.keys(localStorage).length > 0){
     displayProductsList()
   }
+  // remove product from cart
+  for( let i = 0; i < cart.length; i++){ 
+    if ( cart[i][0] === productRef) {
+      cart[i][1] -= 1;
+        cart.splice(i, 1); 
+    }
+  }
+  removeCart()
+  displayCart(cart);
 }
+
+
+function setCartButtonsActions(){
+  let buttonsAdd = document.getElementsByClassName('buttonAdd');
+  let buttonsSub = Array.from(document.getElementsByClassName('buttonSub'));
+  // add eventListener on cart add button
+  Array.from(buttonsAdd).forEach((button) => {
+    button.addEventListener("click", (e) => {
+      // store product reference looking at row parent id and send to function
+      let productRef = e.target.parentElement.parentElement.id
+      addExtraProductToCart(productRef)
+    })
+  })
+  // add eventListener on product delete button and send to delete poduct 
+  Array.from(buttonsSub).forEach((button) => {
+    button.addEventListener("click", (e) => {
+      // store product reference looking at row parent id and send it tot the function
+      let productRef = e.target.parentElement.parentElement.id
+      removeProductFromCart(productRef);
+    })
+  })
+}
+
+
+function addExtraProductToCart(productRef){
+  for( var i = 0; i < cart.length; i++){ 
+    if ( cart[i][0] === productRef) {
+      cart[i][1] += 1;
+    }
+  }
+  // remove cart view, and display it again 
+  removeCart()
+  displayCart(cart);
+}
+
+
+function removeProductFromCart(productRef){
+  for( var i = 0; i < cart.length; i++){ 
+    if ( cart[i][0] === productRef) {
+      cart[i][1] -= 1;
+      if(cart[i][1] === 0){
+        cart.splice(i, 1); 
+      }
+    }
+  }
+  // remove cart view, and display it again 
+  removeCart()
+  displayCart(cart);
+};
