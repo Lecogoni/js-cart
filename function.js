@@ -150,6 +150,7 @@ function setCartButtonsActions(){
   })
 }
 
+
 /** ADD EXTRA PRODUCT TO CART
  * check product stock, if in stock add an extra quantity - else alert of insufficient quantity
  * decrease the stock and update the views
